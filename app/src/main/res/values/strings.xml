@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">GPU Sample</string>
+
+    <string name="rotating_cube">OpenGL Rotating Cube</string>
+    <string name="cpu_temperature">CPU temperature</string>
+    <string name="current_temperature">CPU temperature: %1$d°C</string>
+    <string name="gpu_multiplier">GPU multiplier: %1$d</string>
+    <string name="min_multiplier">1</string>
+    <string name="max_multiplier">64</string>
+
+</resources>
