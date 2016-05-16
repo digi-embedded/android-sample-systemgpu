@@ -1,11 +1,14 @@
 <resources>
     <string name="app_name">GPU Sample</string>
 
-    <string name="rotating_cube">OpenGL Rotating Cube</string>
-    <string name="cpu_temperature">CPU temperature</string>
-    <string name="current_temperature">CPU temperature: %1$d°C</string>
+    <string name="cpu_temperature">Temperature</string>
+    <string name="current_temperature">Current temperature: %1$d°C</string>
     <string name="gpu_multiplier">GPU multiplier: %1$d</string>
     <string name="min_multiplier">1</string>
     <string name="max_multiplier">64</string>
+    <string name="temperature_warning">Note: When the temperature reaches %1$d°C (hot trip point),
+        the GPU multiplier is automatically reduced to %2$d until the temperature drops below %3$d°C.</string>
+
+    <string name="error_shader_compiler">OpenGL error; GLSL shader compiler not supported.</string>
 
 </resources>

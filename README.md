@@ -2,8 +2,8 @@ System Management - GPU Sample Application
 =========================================
 
 This application demonstrates the usage of the System Management - GPU API. It
-allows you to adjust the GPU multiplier and rotate an OpenGL cube while
-monitoring the module's temperature.
+allows you to adjust the GPU multiplier and monitor the module's temperature
+while an OpenGL application is running and using the GPU.
 
 The value of the multiplier is between 1 and 64. When set to 1, the GPU is
 configured with the minimum frequency, while when set to 64 it is configured
@@ -32,8 +32,8 @@ Demo run
 The example is already configured, so all you need to do now is to build and
 launch the project.
 
-While it is running, you can rotate the cube and adjust the GPU multiplier to
-see how the module's temperature varies.
+While it is running, you can adjust the GPU multiplier to see how the module's
+temperature and the smoothness of the OpenGL application vary.
 
 Compatible with
 ---------------
