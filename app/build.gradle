@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 android {
     compileSdkVersion 'Digi International:SDK Add-On for ConnectCore 6:22'
-    buildToolsVersion "23.0.2"
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.digi.android.sample.system.gpu"
         minSdkVersion 22
@@ -18,6 +18,6 @@ android {
 }
 
 dependencies {
-    compile files('libs/androidplot-core-0.6.0.jar')
-    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+    implementation files('libs/androidplot-core-0.6.0.jar')
+    implementation 'com.google.firebase:firebase-appindexing:10.0.0'
 }
