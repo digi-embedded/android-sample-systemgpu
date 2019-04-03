@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2016, Digi International Inc. <support@digi.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -50,6 +50,7 @@ import com.digi.android.system.gpu.GPUManager;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 import fi.harism.effects.ViewPentagons;
 
@@ -65,7 +66,7 @@ import fi.harism.effects.ViewPentagons;
 public class GPUSampleApp extends Activity {
 
 	// Constants.
-	public static final String TAG = "GPUSampleApp";
+	private static final String TAG = "GPUSampleApp";
 
 	public static final String INTENT_FPS = "fps";
 
@@ -87,7 +88,9 @@ public class GPUSampleApp extends Activity {
 
 	private GLSurfaceView mGLSurfaceView;
 
-	private ICPUTemperatureListener temperatureListener = new ICPUTemperatureListener() {
+	private boolean gpuMultError = false;
+
+	private final ICPUTemperatureListener temperatureListener = new ICPUTemperatureListener() {
 		@Override
 		public void onTemperatureUpdate(float temperature) {
 			// Update graph.
@@ -97,24 +100,28 @@ public class GPUSampleApp extends Activity {
 			tempPlot.redraw();
 
 			// Update temperature label.
-			tvCurrentTemperature.setText(String.format(getResources().getString(R.string.current_temperature), (int)temperature));
+			tvCurrentTemperature.setText(String.format(getResources().getString(R.string.current_temperature), temperature));
 
 			// Update multiplier label and seek bar.
-			try {
-				int multiplier = gpuManager.getMultiplier();
-				tvGpuMultiplier.setText(String.format(getResources().getString(R.string.gpu_multiplier), multiplier));
-				if (multiplier != (sbMultiplier.getProgress() + 1))
-					sbMultiplier.setProgress(multiplier - 1);
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (!gpuMultError) {
+				try {
+					int multiplier = gpuManager.getMultiplier();
+					tvGpuMultiplier.setText(String.format(getResources().getString(R.string.gpu_multiplier), multiplier));
+					if (multiplier != (sbMultiplier.getProgress() + 1))
+						sbMultiplier.setProgress(multiplier - 1);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (UnsupportedOperationException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	};
 
-	private BroadcastReceiver fpsReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver fpsReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			tvFps.setText(String.format("%d FPS", intent.getIntExtra(INTENT_FPS, 0)));
+			tvFps.setText(String.format(Locale.getDefault(), "%d FPS", intent.getIntExtra(INTENT_FPS, 0)));
 		}
 	};
 
@@ -155,35 +162,40 @@ public class GPUSampleApp extends Activity {
 	private void initializeControls() {
 		// OpenGL example.
 		mGLSurfaceView = new ViewPentagons(this);
-		RelativeLayout layoutBackground = (RelativeLayout) findViewById(R.id.layout_background);
+		RelativeLayout layoutBackground = findViewById(R.id.layout_background);
 		layoutBackground.addView(mGLSurfaceView);
 
 		// Temperature graphic.
 		initializeTempPlot();
 
 		// Other UI elements.
-		TextView tvTemperatureWarning = (TextView) findViewById(R.id.tv_temperature_warning);
+		TextView tvTemperatureWarning = findViewById(R.id.tv_temperature_warning);
 		try {
 			tvTemperatureWarning.setText(String.format(getResources().getString(R.string.temperature_warning),
-					(int)cpuManager.getHotTemperature(), gpuManager.getMinMultiplier(), ((int)cpuManager.getHotTemperature() - 10)));
+					(int) cpuManager.getHotTemperature(), gpuManager.getMinMultiplier(), ((int) cpuManager.getHotTemperature() - 10)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		tvFps = (TextView) findViewById(R.id.tv_fps);
-		tvCurrentTemperature = (TextView) findViewById(R.id.tv_current_temperature);
-		tvGpuMultiplier = (TextView) findViewById(R.id.tv_gpu_multiplier);
-		sbMultiplier = (SeekBar) findViewById(R.id.sb_multiplier);
+		tvFps = findViewById(R.id.tv_fps);
+		tvCurrentTemperature = findViewById(R.id.tv_current_temperature);
+		tvGpuMultiplier = findViewById(R.id.tv_gpu_multiplier);
+		sbMultiplier = findViewById(R.id.sb_multiplier);
 
 		int multiplier = MAX_MULTIPLIER;
 		try {
 			multiplier = gpuManager.getMultiplier();
 		} catch (IOException e) {
+			gpuMultError = true;
+			Log.e(TAG, "Could not read the GPU multiplier");
+			e.printStackTrace();
+		} catch (UnsupportedOperationException e) {
+			gpuMultError = true;
 			Log.e(TAG, "Could not read the GPU multiplier");
 			e.printStackTrace();
 		}
 
-		tvGpuMultiplier.setText(String.format(getResources().getString(R.string.gpu_multiplier), multiplier));
+		tvGpuMultiplier.setText(String.format(Locale.getDefault(), getResources().getString(R.string.gpu_multiplier), multiplier));
 		sbMultiplier.setMax(MAX_MULTIPLIER - 1);
 		sbMultiplier.setProgress(multiplier - 1);
 		sbMultiplier.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -199,6 +211,9 @@ public class GPUSampleApp extends Activity {
 					else
 						tvGpuMultiplier.setText(String.format(getResources().getString(R.string.gpu_multiplier), newValue));
 				} catch (IOException e) {
+					Log.e(TAG, "Could not set the GPU multiplier");
+					e.printStackTrace();
+				} catch (UnsupportedOperationException e) {
 					Log.e(TAG, "Could not set the GPU multiplier");
 					e.printStackTrace();
 				}
@@ -218,7 +233,7 @@ public class GPUSampleApp extends Activity {
 	 * Initializes and configures the temperature plot.
 	 */
 	private void initializeTempPlot() {
-		tempPlot = (XYPlot) findViewById(R.id.temp_plot);
+		tempPlot = findViewById(R.id.temp_plot);
 
 		tempPlot.setRangeBoundaries(40, 90, BoundaryMode.FIXED);
 		tempPlot.setDomainBoundaries(0, 60, BoundaryMode.FIXED);

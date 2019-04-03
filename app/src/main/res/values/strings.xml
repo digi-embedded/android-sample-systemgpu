@@ -2,7 +2,7 @@
     <string name="app_name">GPU Sample</string>
 
     <string name="cpu_temperature">Temperature</string>
-    <string name="current_temperature">Current temperature: %1$d°C</string>
+    <string name="current_temperature">Current temperature: %1$.1f°C</string>
     <string name="gpu_multiplier">GPU multiplier: %1$d</string>
     <string name="min_multiplier">1</string>
     <string name="max_multiplier">64</string>
