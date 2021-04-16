@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Digi International Inc. <support@digi.com>
+ * Copyright (c) 2016-2021, Digi International Inc. <support@digi.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,7 +21,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
@@ -32,15 +31,10 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.androidplot.Plot;
-import com.androidplot.ui.AnchorPosition;
-import com.androidplot.ui.SizeLayoutType;
-import com.androidplot.ui.SizeMetrics;
-import com.androidplot.ui.XLayoutStyle;
-import com.androidplot.ui.YLayoutStyle;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
+import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.YValueMarker;
 import com.digi.android.system.cpu.CPUManager;
@@ -109,9 +103,7 @@ public class GPUSampleApp extends Activity {
 					tvGpuMultiplier.setText(String.format(getResources().getString(R.string.gpu_multiplier), multiplier));
 					if (multiplier != (sbMultiplier.getProgress() + 1))
 						sbMultiplier.setProgress(multiplier - 1);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (UnsupportedOperationException e) {
+				} catch (IOException | UnsupportedOperationException e) {
 					e.printStackTrace();
 				}
 			}
@@ -185,11 +177,7 @@ public class GPUSampleApp extends Activity {
 		int multiplier = MAX_MULTIPLIER;
 		try {
 			multiplier = gpuManager.getMultiplier();
-		} catch (IOException e) {
-			gpuMultError = true;
-			Log.e(TAG, "Could not read the GPU multiplier");
-			e.printStackTrace();
-		} catch (UnsupportedOperationException e) {
+		} catch (IOException | UnsupportedOperationException e) {
 			gpuMultError = true;
 			Log.e(TAG, "Could not read the GPU multiplier");
 			e.printStackTrace();
@@ -210,10 +198,7 @@ public class GPUSampleApp extends Activity {
 						seekBar.setProgress(gpuManager.getMinMultiplier() - 1);
 					else
 						tvGpuMultiplier.setText(String.format(getResources().getString(R.string.gpu_multiplier), newValue));
-				} catch (IOException e) {
-					Log.e(TAG, "Could not set the GPU multiplier");
-					e.printStackTrace();
-				} catch (UnsupportedOperationException e) {
+				} catch (IOException | UnsupportedOperationException e) {
 					Log.e(TAG, "Could not set the GPU multiplier");
 					e.printStackTrace();
 				}
@@ -238,9 +223,7 @@ public class GPUSampleApp extends Activity {
 		tempPlot.setRangeBoundaries(40, 90, BoundaryMode.FIXED);
 		tempPlot.setDomainBoundaries(0, 60, BoundaryMode.FIXED);
 		tempPlot.setDomainStepValue(7);
-		tempPlot.setDomainValueFormat(new DecimalFormat("0"));
 		tempPlot.setRangeStepValue(6);
-		tempPlot.setRangeValueFormat(new DecimalFormat("0"));
 
 		try {
 			tempPlot.addMarker(new YValueMarker(cpuManager.getHotTemperature(), ""));
@@ -248,30 +231,16 @@ public class GPUSampleApp extends Activity {
 			e.printStackTrace();
 		}
 
-		tempPlot.setPlotMargins(0, 0, 0, 0);
-		tempPlot.setPlotPadding(0, 0, 0, 0);
-		tempPlot.setGridPadding(0, 0, 0, 0);
+		// Customize domain and range labels.
+		tempPlot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.LEFT).
+				setFormat(new DecimalFormat("0"));
+		tempPlot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM)
+				.setFormat(new DecimalFormat("0"));
 
-		tempPlot.setBorderStyle(Plot.BorderStyle.NONE, null, null);
-		tempPlot.setBackgroundColor(Color.TRANSPARENT);
-		tempPlot.getGraphWidget().getBackgroundPaint().setColor(Color.TRANSPARENT);
-		tempPlot.getGraphWidget().getGridBackgroundPaint().setColor(Color.TRANSPARENT);
-
-		tempPlot.getGraphWidget().getDomainLabelPaint().setColor(Color.BLACK);
-		tempPlot.getGraphWidget().getRangeLabelPaint().setColor(Color.BLACK);
-		tempPlot.getGraphWidget().getDomainOriginLabelPaint().setColor(Color.BLACK);
-		tempPlot.getGraphWidget().getDomainOriginLinePaint().setColor(Color.BLACK);
-		tempPlot.getGraphWidget().getRangeOriginLabelPaint().setColor(Color.BLACK);
-		tempPlot.getGraphWidget().getRangeOriginLinePaint().setColor(Color.BLACK);
-		tempPlot.getGraphWidget().setPadding(0, 20, 20, 10);
-		tempPlot.getGraphWidget().setMarginLeft(0);
-		tempPlot.getGraphWidget().position(-0.5f, XLayoutStyle.RELATIVE_TO_RIGHT, -0.5f, YLayoutStyle.RELATIVE_TO_BOTTOM, AnchorPosition.CENTER);
-		tempPlot.getGraphWidget().setSize(new SizeMetrics(0, SizeLayoutType.FILL, 0, SizeLayoutType.FILL));
-
-		tempPlot.getLayoutManager().remove(tempPlot.getLegendWidget());
-		tempPlot.getLayoutManager().remove(tempPlot.getTitleWidget());
-		tempPlot.getLayoutManager().remove(tempPlot.getDomainLabelWidget());
-		tempPlot.getLayoutManager().remove(tempPlot.getRangeLabelWidget());
+		tempPlot.getLayoutManager().remove(tempPlot.getLegend());
+		tempPlot.getLayoutManager().remove(tempPlot.getTitle());
+		tempPlot.getLayoutManager().remove(tempPlot.getDomainTitle());
+		tempPlot.getLayoutManager().remove(tempPlot.getRangeTitle());
 
 		tempSeries = new SimpleXYSeries("Temperature (\u00b0C");
 		tempSeries.useImplicitXVals();
