@@ -8,9 +8,11 @@
     <uses-permission android:name="com.digi.android.permission.GPU" />
 
     <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/digi_icon"
         android:label="@string/app_name"
-        android:allowBackup="true"
         android:theme="@android:style/Theme.Holo.Light.NoActionBar">
         <uses-library
             android:name="com.digi.android"
@@ -18,11 +20,10 @@
 
         <activity
             android:name=".GPUSampleApp"
-            android:label="@string/app_name" >
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>

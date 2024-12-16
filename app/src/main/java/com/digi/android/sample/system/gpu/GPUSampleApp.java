@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, Digi International Inc. <support@digi.com>
+ * Copyright (c) 2016-2025, Digi International Inc. <support@digi.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -30,6 +30,8 @@ import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -136,7 +138,7 @@ public class GPUSampleApp extends Activity {
 		if (mGLSurfaceView != null)
 			mGLSurfaceView.onResume();
 		cpuManager.registerListener(temperatureListener, TEMPERATURE_INTERVAL);
-		registerReceiver(fpsReceiver, new IntentFilter(INTENT_FPS));
+		registerReceiver(fpsReceiver, new IntentFilter(INTENT_FPS), Context.RECEIVER_EXPORTED);
 	}
 
 	@Override
@@ -242,15 +244,18 @@ public class GPUSampleApp extends Activity {
 		tempPlot.getLayoutManager().remove(tempPlot.getDomainTitle());
 		tempPlot.getLayoutManager().remove(tempPlot.getRangeTitle());
 
-		tempSeries = new SimpleXYSeries("Temperature (\u00b0C");
+		tempSeries = new SimpleXYSeries("Temperature (°C");
 		tempSeries.useImplicitXVals();
 
-		LineAndPointFormatter formatter = new LineAndPointFormatter(getResources().getColor(R.color.orange), null,
-				getResources().getColor(R.color.orange), null);
+		LineAndPointFormatter formatter = new LineAndPointFormatter(
+				ContextCompat.getColor(getApplicationContext(), R.color.orange), null,
+				ContextCompat.getColor(getApplicationContext(), R.color.orange), null);
 		Paint paint = new Paint();
 		paint.setAlpha(100);
-		paint.setShader(new LinearGradient(0, 0, 0, 250, getResources().getColor(R.color.orange),
-				getResources().getColor(R.color.orange), Shader.TileMode.MIRROR));
+		paint.setShader(new LinearGradient(0, 0, 0, 250,
+				ContextCompat.getColor(getApplicationContext(), R.color.orange),
+				ContextCompat.getColor(getApplicationContext(), R.color.orange),
+				Shader.TileMode.MIRROR));
 		formatter.setFillPaint(paint);
 
 		tempPlot.addSeries(tempSeries, formatter);
